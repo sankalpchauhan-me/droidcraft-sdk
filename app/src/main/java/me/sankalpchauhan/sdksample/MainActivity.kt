@@ -35,7 +35,7 @@ class MainActivity : AppCompatActivity(), TokenProvider {
         val t = Timer()
         val timerTask = object : TimerTask() {
             override fun run() {
-                val service = NetworkModuleApi.provideService(EntryService::class.java)
+                val service = NetworkModuleApi.createService(EntryService::class.java)
                 service.getService().enqueue(object : Callback<JsonObject> {
                     override fun onResponse(call: Call<JsonObject>, response: Response<JsonObject>) {
 //                    Log.e("RESPONSE", (response.body()).toString())
@@ -47,7 +47,7 @@ class MainActivity : AppCompatActivity(), TokenProvider {
 
                 })
                 val service2 =
-                    NetworkModuleApi.provideService(CatService::class.java, "https://catfact.ninja/")
+                    NetworkModuleApi.createService(CatService::class.java, "https://catfact.ninja/")
                 service2.getFact().enqueue(object : Callback<JsonObject> {
                     override fun onResponse(call: Call<JsonObject>, response: Response<JsonObject>) {
 //                    Log.e("RESPONSE", (response.body()).toString())
@@ -58,7 +58,7 @@ class MainActivity : AppCompatActivity(), TokenProvider {
                     }
                 })
 
-                val service3 = NetworkModuleApi.provideService(EntryService::class.java)
+                val service3 = NetworkModuleApi.createService(EntryService::class.java)
                 service3.getService().enqueue(object : Callback<JsonObject> {
                     override fun onResponse(call: Call<JsonObject>, response: Response<JsonObject>) {
 //                    Log.e("RESPONSE", (response.body()).toString())

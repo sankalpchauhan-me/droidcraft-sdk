@@ -36,7 +36,7 @@ object NetworkModuleApi {
             .build()
     }
 
-    fun <T> provideService(service: Class<T>, baseUrl:String? = null): T {
+    fun <T> createService(service: Class<T>, baseUrl:String? = null): T {
         if(!service.isInterface){
             throw IllegalArgumentException("API declarations must be interfaces.")
         }
