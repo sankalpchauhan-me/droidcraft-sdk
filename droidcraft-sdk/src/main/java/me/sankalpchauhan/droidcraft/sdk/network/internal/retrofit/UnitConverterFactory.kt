@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package me.sankalpchauhan.droidcraft.sdk.network
+package me.sankalpchauhan.droidcraft.sdk.network.internal.retrofit
 
 import okhttp3.ResponseBody
 import retrofit2.Converter

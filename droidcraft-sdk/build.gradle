@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
+    id 'kotlin-kapt'
 }
 
 android {
@@ -13,10 +14,24 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
     }
+    buildFeatures{
+        buildConfig true
+    }
 
     buildTypes {
+        debug {
+            if (project.hasProperty("coverage")) {
+                testCoverageEnabled = coverage == "true"
+            }
+            // Set to true to log privacy or sensible data, such as token
+            buildConfigField "boolean", "LOG_PRIVATE_DATA", project.property("network.debugPrivateData")
+            // Set to BODY instead of NONE to enable logging
+            buildConfigField "okhttp3.logging.HttpLoggingInterceptor.Level", "OKHTTP_LOGGING_LEVEL", "okhttp3.logging.HttpLoggingInterceptor.Level." + project.property("network.httpLogLevel")
+        }
         release {
             minifyEnabled false
+            buildConfigField "boolean", "LOG_PRIVATE_DATA", "false"
+            buildConfigField "okhttp3.logging.HttpLoggingInterceptor.Level", "OKHTTP_LOGGING_LEVEL", "okhttp3.logging.HttpLoggingInterceptor.Level.BASIC"
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -43,6 +58,7 @@ dependencies {
     implementation 'com.squareup.okhttp3:okhttp'
     implementation 'com.squareup.okhttp3:logging-interceptor'
     implementation 'com.google.dagger:dagger:2.48.1'
-    annotationProcessor 'com.google.dagger:dagger-compiler:2.48.1'
+    kapt 'com.google.dagger:dagger-compiler:2.48.1'
+    implementation 'com.jakewharton.timber:timber:5.0.1'
 
 }
