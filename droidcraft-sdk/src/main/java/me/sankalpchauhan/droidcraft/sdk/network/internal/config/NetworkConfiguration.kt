@@ -17,7 +17,9 @@
 package me.sankalpchauhan.droidcraft.sdk.network.internal.config
 
 import okhttp3.Interceptor
+import java.io.File
 import java.lang.reflect.Type
+import java.net.CookieManager
 
 data class NetworkConfiguration(
     val homeServerUrl: String,
@@ -26,9 +28,28 @@ data class NetworkConfiguration(
     val readTimeoutInSecs: Long? = null,
     val writeTimeoutInSecs: Long? = null,
     val connectTimeoutInSecs: Long? = null,
-    val gsonConfiguration: GsonConfiguration = GsonConfiguration(),
     val refreshTokenTimeoutInSecs: Long = 30,
+    val retryConfiguration: RetryConfiguration? = null,
+    val gsonConfiguration: GsonConfiguration = GsonConfiguration(),
     val loggingConfiguration: LoggingConfiguration = LoggingConfiguration(),
+    val headerMapConfiguration: HeaderMapConfiguration = HeaderMapConfiguration(),
+    val cacheConfiguration: CacheConfiguration? = null,
+    val cookieManager: CookieManager? = null,
+)
+
+data class HeaderMapConfiguration(
+    val headers: Map<String, String> = emptyMap(),
+    val patternRegex: String? = null
+)
+
+data class RetryConfiguration(
+    val maxRetries: Int,
+    val initialDelayMillis: Long
+)
+
+data class CacheConfiguration(
+    val cacheSize: Long,
+    val cacheDirectory: File
 )
 
 data class LoggingConfiguration(

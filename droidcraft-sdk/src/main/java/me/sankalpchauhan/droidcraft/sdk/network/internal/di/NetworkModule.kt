@@ -28,6 +28,8 @@ import me.sankalpchauhan.droidcraft.sdk.network.internal.interceptors.ApiInterce
 import me.sankalpchauhan.droidcraft.sdk.network.internal.interceptors.AuthTokenInterceptor
 import me.sankalpchauhan.droidcraft.sdk.network.internal.interceptors.CurlLoggingInterceptor
 import me.sankalpchauhan.droidcraft.sdk.network.internal.interceptors.FormattedJsonHttpLogger
+import me.sankalpchauhan.droidcraft.sdk.network.internal.interceptors.HeaderInterceptor
+import me.sankalpchauhan.droidcraft.sdk.network.internal.interceptors.RetryInterceptor
 import me.sankalpchauhan.droidcraft.sdk.network.internal.interceptors.TimeOutInterceptor
 import me.sankalpchauhan.droidcraft.sdk.network.internal.retrofit.RetrofitFactory
 import me.sankalpchauhan.droidcraft.sdk.network.internal.retrofit.UnitConverterFactory
@@ -107,19 +109,35 @@ internal class NetworkModule(private val networkConfiguration: NetworkConfigurat
 
         @Provides
         @JvmStatic
+        fun provideRetryInterceptor(networkConfiguration: NetworkConfiguration): RetryInterceptor {
+            return RetryInterceptor(networkConfiguration)
+        }
+
+        @Provides
+        @JvmStatic
+        fun provideHeadersInterceptor(networkConfiguration: NetworkConfiguration): HeaderInterceptor {
+            return HeaderInterceptor(networkConfiguration)
+        }
+
+        @Provides
+        @JvmStatic
         fun provideOkHttpClient(
             configuration: NetworkConfiguration,
             httpLoggingInterceptor: HttpLoggingInterceptor,
             curlLoggingInterceptor: CurlLoggingInterceptor,
             timeOutInterceptor: TimeOutInterceptor,
             apiInterceptor: ApiInterceptor,
-            authTokenInterceptor: AuthTokenInterceptor
+            authTokenInterceptor: AuthTokenInterceptor,
+            retryInterceptor: RetryInterceptor,
+            headersInterceptor: HeaderInterceptor
         ): OkHttpClient {
             val interceptors = mutableListOf(
                 authTokenInterceptor,
                 apiInterceptor,
                 httpLoggingInterceptor,
                 timeOutInterceptor,
+                retryInterceptor,
+                headersInterceptor
             )
             if (configuration.loggingConfiguration.debugPrivateData) {
                 interceptors.add(curlLoggingInterceptor)

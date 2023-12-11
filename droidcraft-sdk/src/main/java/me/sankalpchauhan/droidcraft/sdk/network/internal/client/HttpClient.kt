@@ -17,7 +17,9 @@
 package me.sankalpchauhan.droidcraft.sdk.network.internal.client
 
 import me.sankalpchauhan.droidcraft.sdk.network.internal.config.NetworkConfiguration
+import okhttp3.Cache
 import okhttp3.Interceptor
+import okhttp3.JavaNetCookieJar
 import okhttp3.OkHttpClient
 import java.util.concurrent.TimeUnit
 
@@ -33,14 +35,28 @@ class HttpClient {
                 }
             }
         configuration.connectTimeoutInSecs?.let {
-            builder.readTimeout(it, TimeUnit.SECONDS)
+            builder.connectTimeout(it, TimeUnit.SECONDS)
         }
         configuration.readTimeoutInSecs?.let {
             builder.readTimeout(it, TimeUnit.SECONDS)
         }
         configuration.writeTimeoutInSecs?.let {
-            builder.readTimeout(it, TimeUnit.SECONDS)
+            builder.writeTimeout(it, TimeUnit.SECONDS)
         }
+
+        configuration.cacheConfiguration?.let {
+            builder.cache(
+                Cache(
+                    it.cacheDirectory,
+                    it.cacheSize
+                )
+            )
+        }
+
+        configuration.cookieManager?.let {
+            builder.cookieJar(JavaNetCookieJar(it))
+        }
+
         builder.interceptors().removeAll(configuration.interceptors)
         builder.networkInterceptors().removeAll(configuration.networkInterceptors)
         configuration.interceptors.forEach {

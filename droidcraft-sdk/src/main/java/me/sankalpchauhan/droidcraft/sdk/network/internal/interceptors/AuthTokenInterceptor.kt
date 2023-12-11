@@ -18,6 +18,8 @@ package me.sankalpchauhan.droidcraft.sdk.network.internal.interceptors
 
 import me.sankalpchauhan.droidcraft.sdk.network.internal.client.TokenProvider
 import me.sankalpchauhan.droidcraft.sdk.network.internal.config.NetworkConfiguration
+import me.sankalpchauhan.droidcraft.sdk.network.internal.extensions.addHeaderIfAbsent
+import me.sankalpchauhan.droidcraft.sdk.util.HttpStatusCode
 import okhttp3.Interceptor
 import okhttp3.Request
 import okhttp3.Response
@@ -35,7 +37,7 @@ class AuthTokenInterceptor @Inject constructor(
         var request = chain.request()
         var response = chain.proceed(requestWithToken(request))
 
-        if (response.code == 401) {
+        if (response.code == HttpStatusCode.UNAUTHORIZED.code) {
             synchronized(this) {
                 response.close()
                 var newToken: String? = null
@@ -44,12 +46,13 @@ class AuthTokenInterceptor @Inject constructor(
                     newToken = token
                     latch.countDown()
                 }
+                //TODO: Check if this is the right way to do this
                 val tokenRefreshed = latch.await(networkConfiguration.refreshTokenTimeoutInSecs, TimeUnit.SECONDS)
                 if (tokenRefreshed && newToken != null) {
                     request = requestWithToken(request, newToken)
                     response = chain.proceed(request)
                 } else {
-                    // TODO: Handle token refresh failiure
+                    return response
                 }
             }
         }
@@ -59,9 +62,7 @@ class AuthTokenInterceptor @Inject constructor(
 
     private fun requestWithToken(request: Request, token: String? = tokenProvider.getToken()): Request {
         return if (!token.isNullOrEmpty()) {
-            request.newBuilder()
-                .header("Authorization", "Bearer $token")
-                .build()
+            request.addHeaderIfAbsent("Authorization", "Bearer $token")
         } else {
             request
         }

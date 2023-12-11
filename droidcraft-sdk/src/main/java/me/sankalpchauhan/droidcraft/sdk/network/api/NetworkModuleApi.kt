@@ -22,6 +22,7 @@ import me.sankalpchauhan.droidcraft.sdk.network.internal.config.NetworkConfigura
 import me.sankalpchauhan.droidcraft.sdk.network.internal.di.DaggerNetworkComponent
 import me.sankalpchauhan.droidcraft.sdk.network.internal.di.NetworkComponent
 import me.sankalpchauhan.droidcraft.sdk.network.internal.di.NetworkModule
+import me.sankalpchauhan.droidcraft.sdk.util.isValidUrl
 import timber.log.Timber
 
 object NetworkModuleApi {
@@ -29,6 +30,9 @@ object NetworkModuleApi {
     fun initialize(configuration: NetworkConfiguration, tokenProvider: TokenProvider) {
         if (Timber.treeCount==0 &&  BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())
+        }
+        if(!configuration.homeServerUrl.isValidUrl()){
+            throw IllegalArgumentException("Home Server URL is not valid")
         }
         val networkModule = NetworkModule(configuration, tokenProvider)
         networkComponent = DaggerNetworkComponent.builder()
