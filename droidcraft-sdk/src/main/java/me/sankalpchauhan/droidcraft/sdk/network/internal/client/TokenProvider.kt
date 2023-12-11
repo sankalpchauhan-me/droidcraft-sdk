@@ -18,5 +18,5 @@ package me.sankalpchauhan.droidcraft.sdk.network.internal.client
 
 interface TokenProvider {
     fun getToken(): String?
-    fun refreshToken(callback: (String, Int) -> Unit)
+    fun refreshToken(callback: (String?, Int) -> Unit)
 }

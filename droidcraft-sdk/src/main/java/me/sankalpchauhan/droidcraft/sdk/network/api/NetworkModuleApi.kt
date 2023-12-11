@@ -16,15 +16,20 @@
 
 package me.sankalpchauhan.droidcraft.sdk.network.api
 
+import me.sankalpchauhan.droidcraft.BuildConfig
 import me.sankalpchauhan.droidcraft.sdk.network.internal.client.TokenProvider
 import me.sankalpchauhan.droidcraft.sdk.network.internal.config.NetworkConfiguration
 import me.sankalpchauhan.droidcraft.sdk.network.internal.di.DaggerNetworkComponent
 import me.sankalpchauhan.droidcraft.sdk.network.internal.di.NetworkComponent
 import me.sankalpchauhan.droidcraft.sdk.network.internal.di.NetworkModule
+import timber.log.Timber
 
 object NetworkModuleApi {
     private lateinit var networkComponent: NetworkComponent
     fun initialize(configuration: NetworkConfiguration, tokenProvider: TokenProvider) {
+        if (Timber.treeCount==0 &&  BuildConfig.DEBUG) {
+            Timber.plant(Timber.DebugTree())
+        }
         val networkModule = NetworkModule(configuration, tokenProvider)
         networkComponent = DaggerNetworkComponent.builder()
             .networkModule(networkModule)
@@ -32,6 +37,9 @@ object NetworkModuleApi {
     }
 
     fun <T> provideService(service: Class<T>, baseUrl:String? = null): T {
+        if(!service.isInterface){
+            throw IllegalArgumentException("API declarations must be interfaces.")
+        }
         if (!::networkComponent.isInitialized) {
             throw IllegalStateException("NetworkModule must be initialized first")
         }

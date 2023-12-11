@@ -20,9 +20,9 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
-import me.sankalpchauhan.droidcraft.BuildConfig
 import me.sankalpchauhan.droidcraft.sdk.network.internal.client.HttpClient
 import me.sankalpchauhan.droidcraft.sdk.network.internal.client.TokenProvider
+import me.sankalpchauhan.droidcraft.sdk.network.internal.config.LoggingConfigurationLevel
 import me.sankalpchauhan.droidcraft.sdk.network.internal.config.NetworkConfiguration
 import me.sankalpchauhan.droidcraft.sdk.network.internal.interceptors.ApiInterceptor
 import me.sankalpchauhan.droidcraft.sdk.network.internal.interceptors.AuthTokenInterceptor
@@ -88,10 +88,20 @@ internal class NetworkModule(private val networkConfiguration: NetworkConfigurat
 
         @Provides
         @JvmStatic
-        fun provideHttpLoggingInterceptor(): HttpLoggingInterceptor {
-            val logger = FormattedJsonHttpLogger(BuildConfig.OKHTTP_LOGGING_LEVEL)
+        fun provideHttpLoggingInterceptor(networkConfiguration: NetworkConfiguration): HttpLoggingInterceptor {
+            val httpLoggingLevel = when(networkConfiguration.loggingConfiguration.loggingConfigurationLevel){
+                LoggingConfigurationLevel.NONE -> HttpLoggingInterceptor.Level.NONE
+                LoggingConfigurationLevel.BASIC -> HttpLoggingInterceptor.Level.BASIC
+                LoggingConfigurationLevel.BODY -> HttpLoggingInterceptor.Level.BODY
+                LoggingConfigurationLevel.HEADERS ->  HttpLoggingInterceptor.Level.HEADERS
+            }
+            val logger = FormattedJsonHttpLogger(httpLoggingLevel)
             val interceptor = HttpLoggingInterceptor(logger)
-            interceptor.level = BuildConfig.OKHTTP_LOGGING_LEVEL
+            if(!networkConfiguration.loggingConfiguration.debugPrivateData){
+                interceptor.redactHeader("Authorization")
+                interceptor.redactHeader("Cookie")
+            }
+            interceptor.level = httpLoggingLevel
             return interceptor
         }
 
@@ -108,10 +118,12 @@ internal class NetworkModule(private val networkConfiguration: NetworkConfigurat
             val interceptors = mutableListOf(
                 authTokenInterceptor,
                 apiInterceptor,
-                curlLoggingInterceptor,
                 httpLoggingInterceptor,
                 timeOutInterceptor,
             )
+            if (configuration.loggingConfiguration.debugPrivateData) {
+                interceptors.add(curlLoggingInterceptor)
+            }
             return HttpClient().getHttpClientBuilder(configuration, interceptors)
         }
 

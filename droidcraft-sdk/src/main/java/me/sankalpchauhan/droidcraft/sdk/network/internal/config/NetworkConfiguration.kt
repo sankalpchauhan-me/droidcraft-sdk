@@ -27,6 +27,12 @@ data class NetworkConfiguration(
     val connectTimeoutInSecs: Long? = null,
     val gsonConfiguration: GsonConfiguration = GsonConfiguration(),
     val refreshTokenTimeoutInSecs: Long = 30,
+    val loggingConfiguration: LoggingConfiguration = LoggingConfiguration(),
+)
+
+data class LoggingConfiguration(
+    val debugPrivateData: Boolean = false,
+    val loggingConfigurationLevel: LoggingConfigurationLevel = LoggingConfigurationLevel.BASIC,
 )
 
 data class GsonConfiguration(
@@ -34,3 +40,10 @@ data class GsonConfiguration(
     val typeAdapters: List<Pair<Type, Any>> = listOf(),
     val prettyPrinting: Boolean = false
 )
+
+enum class LoggingConfigurationLevel {
+    NONE,
+    BASIC,
+    BODY,
+    HEADERS
+}

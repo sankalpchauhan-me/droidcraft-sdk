@@ -25,7 +25,6 @@ import javax.inject.Inject
 
 
 internal class RetrofitFactory @Inject constructor() {
-    private val retrofitInstanceMap: MutableMap<String, Retrofit> = HashMap()
     private fun create(
         okHttpClient: Lazy<OkHttpClient>,
         baseUrl: String,
@@ -38,7 +37,7 @@ internal class RetrofitFactory @Inject constructor() {
                 converterFactories.forEach { addConverterFactory(it) }
             }
             .build()
-        return retrofitInstance;
+        return retrofitInstance
     }
 
     fun getRetrofitInstance(
@@ -53,5 +52,9 @@ internal class RetrofitFactory @Inject constructor() {
             retrofitInstanceMap[baseUrl] = newRetrofitInstance
             newRetrofitInstance
         }
+    }
+
+    companion object{
+        private val retrofitInstanceMap: MutableMap<String, Retrofit> = HashMap()
     }
 }
