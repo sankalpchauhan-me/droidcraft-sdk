@@ -19,7 +19,6 @@ package me.sankalpchauhan.droidcraft.sdk.network.internal.client
 import me.sankalpchauhan.droidcraft.sdk.network.internal.config.NetworkConfiguration
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
-import okio.Timeout
 import java.util.concurrent.TimeUnit
 
 class HttpClient {
@@ -42,9 +41,13 @@ class HttpClient {
         configuration.writeTimeoutInSecs?.let {
             builder.readTimeout(it, TimeUnit.SECONDS)
         }
-        builder.interceptors().removeAll(configuration.networkInterceptors)
-        configuration.networkInterceptors.forEach {
+        builder.interceptors().removeAll(configuration.interceptors)
+        builder.networkInterceptors().removeAll(configuration.networkInterceptors)
+        configuration.interceptors.forEach {
             builder.addInterceptor(it)
+        }
+        configuration.networkInterceptors.forEach {
+            builder.addNetworkInterceptor(it)
         }
 
         return builder.build()

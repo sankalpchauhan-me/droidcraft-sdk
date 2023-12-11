@@ -22,6 +22,7 @@ import java.lang.reflect.Type
 data class NetworkConfiguration(
     val homeServerUrl: String,
     val networkInterceptors: List<Interceptor> = emptyList(),
+    val interceptors: List<Interceptor> = emptyList(),
     val readTimeoutInSecs: Long? = null,
     val writeTimeoutInSecs: Long? = null,
     val connectTimeoutInSecs: Long? = null,
