@@ -28,16 +28,15 @@ class HeaderInterceptor @Inject constructor(
     private val networkConfiguration: NetworkConfiguration
 ) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
-        val request = chain.request()
-        val builder = request.newBuilder()
+        var request = chain.request()
         val regex: String = networkConfiguration.headerMapConfiguration.patternRegex?:URL(networkConfiguration.homeServerUrl).host
         val pattern = Pattern.compile(regex)
         if (pattern.matcher(request.url.host).matches()){
             if(networkConfiguration.headerMapConfiguration.headers.isNotEmpty()){
-                request.addHeadersIfAbsent(networkConfiguration.headerMapConfiguration.headers)
+                request = request.addHeadersIfAbsent(networkConfiguration.headerMapConfiguration.headers)
             }
         }
-        return chain.proceed(builder.build())
+        return chain.proceed(request)
     }
 }
 
